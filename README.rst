@@ -4,6 +4,10 @@
 
 txievery (pronounced "thievery") is a library for dealing with Paypal.
 
+The first target for txievery will be the `Express Checkout API`_.
+
+.. _`Express Checkout API`: https://www.x.com/community/ppx/ec
+
 Reference documents
 ===================
 
