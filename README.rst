@@ -2,10 +2,13 @@
  txievery
 ==========
 
-txievery (pronounced "thievery") is a library for dealing with Paypal.
+txievery (pronounced "thievery") is a library for dealing with Paypal_
+using Twisted_.
 
 The first target for txievery will be the `Express Checkout API`_.
 
+.. _Paypal: http://www.paypal.com
+.. _Twisted: http://www.twistedmatrix.com
 .. _`Express Checkout API`: https://www.x.com/community/ppx/ec
 
 Reference documents
