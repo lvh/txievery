@@ -3,6 +3,8 @@ Interfaces for the Express Checkout API.
 """
 from zope.interface import Interface, Attribute
 
+UNCHANGED = object()
+
 
 class ICheckout(Interface):
     token = Attribute(
@@ -10,13 +12,22 @@ class ICheckout(Interface):
         The token for this checkout.
         """)
 
+
     def getDetails():
         """
         Gets the details for this checkout.
         """
 
-    def complete(amount=UNCHANGED, currency=UNCHANGED):
-        pass
+
+    def complete(paymentRequests=UNCHANGED):
+        """
+        Completes the checkout.
+        """
+
+
+
+ACTIONS = "Sale", "Authorization", "Order"
+
 
 
 class IPaymentRequest(Interface):
@@ -28,8 +39,17 @@ class IPaymentRequest(Interface):
         rounded to two places.
         """)
 
+
     currency = Attribute(
         """
         The currency code for the currency in which the amount is
         expressed.
+        """)
+
+
+    action = Attribute(
+        """
+        The specific action associated with this payment request.
+
+        Should be one of the actions specified in ``ACTIONS``.
         """)
