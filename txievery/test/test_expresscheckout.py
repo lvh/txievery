@@ -34,10 +34,10 @@ class InterspersionTest(object):
     """
     delimiter = "\x00"
 
-    def buildInterspersed(self, iterable, delimiter):
+    def buildInterspersed(self, iterable):
         """
         Return an iterable of strings that, when joined, is the output
-        of the original iterator, interspersed with ``delimiter``.
+        of the original iterator, interspersed with ``self.delimiter``.
         """
         return NotImplementedError("Override this method")
 
@@ -79,9 +79,8 @@ class IntersperseTest(InterspersionTest, unittest.TestCase):
     """
     Tests for the ``_intersperse`` function.
     """
-    @staticmethod
-    def buildInterspersed(iterable, delimiter):
-        return api._intersperse(iterable, delimiter)
+    def buildInterspersed(self, iterable):
+        return api._intersperse(iterable, self.delimiter)
 
 
 
@@ -89,9 +88,8 @@ class InterspersedTest(InterspersionTest):
     """
     Tests for the ``interspersed`` decorator.
     """
-    @staticmethod
-    def buildInterspersed(iterable, delimiter):
-        @api.interspersed(delimiter)
+    def buildInterspersed(self, iterable):
+        @api.interspersed(self.delimiter)
         def generatorFunction():
             return iterable
 
