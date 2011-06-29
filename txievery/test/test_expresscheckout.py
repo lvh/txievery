@@ -1,14 +1,39 @@
 """
 Tests for the Express Checkout API.
 """
+import re
+from urllib import urlencode
+from urlparse import parse_qsl
+
 from twisted.trial import unittest
 
 from txievery.expresscheckout import api, interfaces
 
 
+def grouper(it, n):
+    return zip(*[iter(it)]*n)
+
+
+
 class EncodePaymentRequestTest(unittest.TestCase):
     def _test_encode(self, requests):
-        encoded = api.encodePaymentRequests(requests)
+        suffixes = [k for _, k in api._ENCODE_ATTRKEYS]
+
+        encoded = "".join(api.encodePaymentRequests(*requests))
+        parsed = parse_qsl(encoded)
+        parsedPerRequest = grouper(parsed, len(suffixes))
+        self.assertEqual(len(parsedPerRequest), len(requests))
+
+        for index, requestData in enumerate(zip(requests, parsedPerRequest)):
+            request, parsedEntries = requestData
+
+            for expectedSuffix, entry in zip(suffixes, parsedEntries):
+                key, value = entry
+                prefix, entryIndex, suffix = key.split("_", 2)
+
+                self.assertEqual(prefix, "PAYMENTREQUEST")
+                self.assertEqual(entryIndex, str(index))
+                self.assertEqual(suffix, expectedSuffix)
 
 
     def test_empty(self):
@@ -16,17 +41,15 @@ class EncodePaymentRequestTest(unittest.TestCase):
 
 
     def test_one(self):
-        pr = api.PaymentRequest("0.01", "USD")
-        self._test_encode([pr])
+        data = [("0.01", "USD")]
+        self._test_encode([api.PaymentRequest(a, c) for a, c in data])
 
 
-    def test_brokenInput(self):
-        """
-        Tests that data in the template gets quoted correctly.
-
-        Note that this is a fairly unrealistic 
-        """
-
+    def test_multiple(self):
+        data = [("0.01", "USD"), ("0.01", "EUR"), ("0.01", "HKD")]
+        self._test_encode([api.PaymentRequest(a, c) for a, c in data])
+        
+        
 
 class InterspersionTest(object):
     """
@@ -47,7 +70,7 @@ class InterspersionTest(object):
         Tests interspersion using the ``_intersperse`` function
         directly.
         """
-        got = "".join(self.buildInterspersed(iterable, self.delimiter))
+        got = "".join(self.buildInterspersed(iterable))
         expected = self.delimiter.join(iterable)
         self.assertEqual(got, expected)
 

@@ -57,8 +57,8 @@ class PaymentRequest(object):
         self.amount = _twoDecimalPlaces(amount)
         self.currency = currency
 
-        if action not in actions:
-            raise ValueError("Action should be one of %s" % (actions,))
+        if action not in interfaces.ACTIONS:
+            raise ValueError("Unsupported action")
         self.action = action
 
 
@@ -109,11 +109,12 @@ def interspersed(delimiter):
 _ENCODE_ATTRKEYS = [("amount", "AMT"),
                     ("currency", "CURRENCYCODE"),
                     ("action", "PAYMENTACTION")]
-_TEMPLATE = "PAYMENTREQUEST_{{index}}_{key}={{value}}&"
+_TEMPLATE = "PAYMENTREQUEST_{{index}}_{key}={{value}}"
 _ENCODE_DETAILS = [(attr, _TEMPLATE.format(key=key))
                    for attr, key in _ENCODE_ATTRKEYS]
 
 
+@interspersed("&")
 def encodePaymentRequests(*requests):
     """
     Encodes some payment requests into something closer to Paypal's
@@ -129,7 +130,7 @@ def encodePaymentRequests(*requests):
     """
     for index, paymentRequest in enumerate(requests):
         for attr, template in _ENCODE_DETAILS:
-            value = quote_plus(getattr(paymentRequest, attr))
+            value = quote_plus(str(getattr(paymentRequest, attr)))
             entry = template.format(index=index, value=value)
             yield entry
 
