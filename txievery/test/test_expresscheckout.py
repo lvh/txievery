@@ -28,12 +28,26 @@ class EncodePaymentRequestTest(unittest.TestCase):
         """
 
 
-
-class IntersperseTest(unittest.TestCase):
+class InterspersionTest(object):
+    """
+    Tests for ways to intersperse an iterable with a delimiter.
+    """
     delimiter = "\x00"
 
+    def buildInterspersed(self, iterable, delimiter):
+        """
+        Return an iterable of strings that, when joined, is the output
+        of the original iterator, interspersed with ``delimiter``.
+        """
+        return NotImplementedError("Override this method")
+
+
     def _test_intersperse(self, iterable):
-        got = "".join(api._intersperse(iterable, self.delimiter))
+        """
+        Tests interspersion using the ``_intersperse`` function
+        directly.
+        """
+        got = "".join(self.buildInterspersed(iterable, self.delimiter))
         expected = self.delimiter.join(iterable)
         self.assertEqual(got, expected)
 
@@ -60,14 +74,25 @@ class IntersperseTest(unittest.TestCase):
         self._test_intersperse("abc")
 
 
-class InterspersedTest(IntersperseTest):
+
+class IntersperseTest(InterspersionTest, unittest.TestCase):
+    """
+    Tests for the ``_intersperse`` function.
+    """
+    @staticmethod
+    def buildInterspersed(iterable, delimiter):
+        return api._intersperse(iterable, delimiter)
+
+
+
+class InterspersedTest(InterspersionTest):
     """
     Tests for the ``interspersed`` decorator.
     """
-    def _test_intersperse(self, iterable):
-        @api.interspersed(self.delimiter)
+    @staticmethod
+    def buildInterspersed(iterable, delimiter):
+        @api.interspersed(delimiter)
         def generatorFunction():
             return iterable
 
-        got = "".join(generatorFunction())
-        expected = self.delimiter.join(iterable)
+        return generatorFunction()
