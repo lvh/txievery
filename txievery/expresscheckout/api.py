@@ -2,7 +2,6 @@
 Direct access to Paypal's Express Checkout API.
 """
 from decimal import Decimal
-from functools import wraps
 from urllib import quote_plus
 
 from zope.interface import implements
@@ -12,7 +11,7 @@ from txievery.expresscheckout import interfaces
 
 class Client(object):
     """
-    A client for dealing with Paypal's Express Checkout API.
+    A client for dealing with Paypal's Express Checkout NVP API.
     """
     def __init__(self, returnURL, cancelURL):
         self.returnURL = returnURL
@@ -25,7 +24,7 @@ class Client(object):
 
         Returns a deferred ``ICheckout``.
 
-        This maps to the ``SetExpressCheckout`` call.
+        This maps to the ``SetExpressCheckout`` NVP API call.
         """
         @d.addCallback
         def instantiateCheckout(token):
