@@ -27,7 +27,7 @@ class ICheckout(Interface):
 
 
 ACTIONS = SALE, AUTHORIZATION, ORDER = "Sale", "Authorization", "Order"
-
+CATEGORIES = PHYSICAL, DIGITAL = "Physical", "Digital"
 
 
 class IPaymentRequest(Interface):
@@ -52,4 +52,12 @@ class IPaymentRequest(Interface):
         The specific action associated with this payment request.
 
         Should be one of the actions specified in ``ACTIONS``.
+        """)
+
+
+    category = Attribute(
+        """
+        The category of the item this payment request is for.
+
+        Should be one of the actions specified in ``CATEGORIES``.
         """)
