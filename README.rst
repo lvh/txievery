@@ -21,5 +21,5 @@ contradictory information, information on deprecated APIs...
 
  - `PayPal Express Checkout Integration Guide`_
 
-.. _`PayPal Express Checkout Integration Guide`: https://cms.paypal.com/cms_content/en_US/files/developer/PP_ExpressCheckout_IntegrationGuide.pdf
+.. _`PayPal Express Checkout Integration Guide`: https://cms.paypal.com/cms_content/US/en_US/files/developer/PP_ExpressCheckout_IntegrationGuide.pdf
 
