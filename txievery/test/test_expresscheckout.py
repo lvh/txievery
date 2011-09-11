@@ -1,13 +1,11 @@
 """
 Tests for the Express Checkout API.
 """
-import re
-from urllib import urlencode
 from urlparse import parse_qsl
 
 from twisted.trial import unittest
 
-from txievery.expresscheckout import api, interfaces
+from txievery.expresscheckout import api
 
 
 def grouper(it, n):
@@ -16,6 +14,9 @@ def grouper(it, n):
 
 
 class EncodePaymentRequestTest(unittest.TestCase):
+    """
+    Tests for encoding payment requests.
+    """
     def _test_encode(self, requests):
         suffixes = [k for _, k in api._ENCODE_ATTRKEYS]
 
@@ -37,15 +38,24 @@ class EncodePaymentRequestTest(unittest.TestCase):
 
 
     def test_empty(self):
+        """
+        Tests encoding an empty payment request.
+        """
         self._test_encode([])
 
 
     def test_one(self):
+        """
+        Tests encoding a payment request with one entry.
+        """
         data = [("0.01", "USD")]
         self._test_encode([api.PaymentRequest(a, c) for a, c in data])
 
 
     def test_multiple(self):
+        """
+        Tests encoding a payment request with multiple entries.
+        """
         data = [("0.01", "USD"), ("0.01", "EUR"), ("0.01", "HKD")]
         self._test_encode([api.PaymentRequest(a, c) for a, c in data])
         
