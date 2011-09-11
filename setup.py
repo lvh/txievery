@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from distutils.core import setup
+from setuptools import find_packages, setup
 
 setup(name='txievery',
       version='0',
@@ -9,9 +9,9 @@ setup(name='txievery',
       author='Laurens Van Houtven',
       author_email='_@lvh.cc',
 
-      packages=['txievery'],
+      packages=find_packages(),
 
-      requires=['twisted'],
+      install_requires=['twisted'],
 
       license='ISC',
       classifiers=[
