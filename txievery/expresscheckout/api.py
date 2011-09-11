@@ -6,7 +6,7 @@ from urllib import quote_plus
 
 from zope.interface import implements
 
-from txievery.expresscheckout import interfaces
+from txievery.expresscheckout import interface
 
 
 class Client(object):
@@ -52,7 +52,7 @@ def _twoDecimalPlaces(amount):
 
 
 class PaymentRequest(object):
-    def __init__(self, amount, currency, action="Sale"):
+    def __init__(self, amount, currency, action=interface.SALE):
         self.amount = _twoDecimalPlaces(amount)
         self.currency = currency
 
@@ -125,7 +125,8 @@ def encodePaymentRequests(*requests):
 
         PAYMENTREQUEST_0_AMT=100.00
 
-    Note the lack of ``&`` at the end of that line.
+    Note the lack of ``&`` at the end of that line. This is added by the
+    ``interspersed`` decorator.
     """
     for index, paymentRequest in enumerate(requests):
         for attr, template in _ENCODE_DETAILS:

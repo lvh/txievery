@@ -26,7 +26,7 @@ class ICheckout(Interface):
 
 
 
-ACTIONS = "Sale", "Authorization", "Order"
+ACTIONS = SALE, AUTHORIZATION, ORDER = "Sale", "Authorization", "Order"
 
 
 
