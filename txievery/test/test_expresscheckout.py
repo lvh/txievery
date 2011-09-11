@@ -58,8 +58,8 @@ class EncodePaymentRequestTest(unittest.TestCase):
         """
         data = [("0.01", "USD"), ("0.01", "EUR"), ("0.01", "HKD")]
         self._test_encode([api.PaymentRequest(a, c) for a, c in data])
-        
-        
+
+
 
 class InterspersionTest(object):
     """
