@@ -76,12 +76,6 @@ class IItem(Interface):
         """)
 
 
-    quantity = Attribute(
-        """
-        The quantity of this item.
-        """)
-
-
     category = Attribute(
         """
         The category of the item this payment request is for.
