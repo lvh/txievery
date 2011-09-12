@@ -31,6 +31,22 @@ class ItemTest(unittest.TestCase):
         self.assertRaises(TypeError, assignCategory, "BOGUS")
 
 
+class ItemAmountQuantizationTest(unittest.TestCase):
+    """
+    Tests that the amount of an item becomes quantized to two decimal places.
+    """
+    def test_noQuantizationNecessary(self):
+        amount = decimal.Decimal("100.00")
+        item = api.Item(amount, "USD")
+        self.assertEqual(item.amount, amount)
+
+
+    def test_quantization(self):
+        item = api.Item(decimal.Decimal("100.12345"), "USD")
+        expected = decimal.Decimal("100.12")
+        self.assertEqual(item.amount, expected)
+
+
 
 class PaymentRequestTest(unittest.TestCase):
     pass

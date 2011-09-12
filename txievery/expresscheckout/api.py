@@ -2,6 +2,7 @@
 Direct access to Paypal's Express Checkout API.
 """
 import decimal
+import itertools
 import operator
 import urllib
 import urlparse
@@ -99,6 +100,9 @@ class Client(object):
 
 
 
+ZERO = decimal.Decimal("0")
+
+
 def _combinedAmount(attr):
     getAmount = operator.attrgetter(attr)
 
@@ -109,8 +113,9 @@ def _combinedAmount(attr):
     return combinedAmount
 
 
-class NewPaymentRequest(object):
-    handlingAmount = shippingAmount = taxAmount = decimal.Decimal("0")
+
+class PaymentRequest(object):
+    handlingAmount = shippingAmount = taxAmount = ZERO
     
     def __init__(self, itemDetails, action=interface.SALE):
         self.itemDetails = itemDetails
@@ -120,6 +125,11 @@ class NewPaymentRequest(object):
     def items(self):
         return (item for item, qty in self.itemDetails)
 
+
+    @property
+    def totalAmount(self):
+        return (self.itemAmount + self.totalTaxAmount
+                + self.totalHandlingAmount + self.totalShippingAmount)
         
     @property
     def itemAmount(self):
@@ -132,6 +142,53 @@ class NewPaymentRequest(object):
 
 
 
+REQUEST_KEYS = [("AMT", "totalAmount")]
+ITEM_KEYS = [("ITEMCATEGORY", "category")]
+
+
+def encodePaymentRequests(*requests):
+    """
+    Encodes a bunch of payment requests as pairs.
+    """
+    encodedRequests = itertools.starmap(_encodeRequest, enumerate(requests))
+    return itertools.chain.from_iterable(encodedRequests)
+
+
+def _encodeRequest(requestIndex, request):
+    """
+    Encodes a payment request as (name, value) pairs.
+    """
+    requestTemplate = "PAYMENTREQUEST_{}_{{}}".format(requestIndex)
+    requestPairs = _encodeAttributes(request, requestTemplate, REQUEST_KEYS)
+
+    encodedItems = (_encodeItem(requestTemplate, itemIndex, item, quantity)
+                    for itemIndex, (item, quantity)
+                    in enumerate(request.itemDetails))
+    itemPairs = itertools.chain.from_iterable(encodedItems)
+
+    return itertools.chain(requestPairs, itemPairs)
+
+
+def _encodeItem(requestTemplate, index, item, quantity):
+    """
+    Encodes a single item inside a payment request as (name, value) pairs.
+    """
+    itemTemplate = "L_{}_{{}}{}".format(requestTemplate, index)
+    quantityPairs = [(itemTemplate.format("QTY"), quantity)]
+    itemPairs = _encodeAttributes(item, itemTemplate, ITEM_KEYS)
+    return itertools.chain(quantityPairs, itemPairs)
+
+    
+def _encodeAttributes(obj, template, keysAndAttributes):
+    """
+    Encodes the attributes of an object as key, value pairs.
+    """
+    for key, attribute in keysAndAttributes:
+        value = getattr(obj, attribute, None)
+        if value is not None:
+            yield template.format(key), value
+        
+
 def _twoDecimalPlaces(amount):
     """
     Quantizes to two decimal places.
@@ -141,15 +198,35 @@ def _twoDecimalPlaces(amount):
 
 
 class Item(object):
+    """
+    An item in a payment request.
+    """
     implements(interface.IItem)
 
-    def __init__(self, amount, currency):
+    def __init__(self, amount, currency="USD"):
         self.amount = _twoDecimalPlaces(amount)
         self.currency = currency
+
+    
+    _category = interface.PHYSICAL
+    @property
+    def category(self):
+        return self._category
+
+    @category.setter
+    def setCategory(self, category):
+        if category not in interface.CATEGORIES:
+            raise ValueError("Cateogry must be one of {}, was {}"
+                             .format(interface.CATEGORIES, category))
+
+        self._category = category
 
 
 
 class Checkout(object):
+    """
+    A checkout.
+    """
     implements(interface.ICheckout)
 
     def __init__(self, client, token, paymentRequests):
