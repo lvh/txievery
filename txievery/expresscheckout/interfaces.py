@@ -30,6 +30,7 @@ ACTIONS = SALE, AUTHORIZATION, ORDER = "Sale", "Authorization", "Order"
 CATEGORIES = PHYSICAL, DIGITAL = "Physical", "Digital"
 
 
+
 class IPaymentRequest(Interface):
     amount = Attribute(
         """
