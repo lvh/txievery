@@ -27,7 +27,6 @@ class ICheckout(Interface):
 
 
 ACTIONS = SALE, AUTHORIZATION, ORDER = "Sale", "Authorization", "Order"
-CATEGORIES = PHYSICAL, DIGITAL = "Physical", "Digital"
 
 
 
@@ -53,6 +52,33 @@ class IPaymentRequest(Interface):
         The specific action associated with this payment request.
 
         Should be one of the actions specified in ``ACTIONS``.
+        """)
+
+
+
+CATEGORIES = PHYSICAL, DIGITAL = "Physical", "Digital"
+
+
+class IItem(Interface):
+    amount = Attribute(
+        """
+        The unit price of this item.
+
+        This should be a ``Decimal`` object, and will always be
+        rounded to two places.
+        """)
+
+    
+    currency = Attribute(
+        """
+        The currency code for the currency in which the unit price is
+        expressed.
+        """)
+
+
+    quantity = Attribute(
+        """
+        The quantity of this item.
         """)
 
 
