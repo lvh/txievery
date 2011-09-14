@@ -8,6 +8,7 @@ from twisted.trial import unittest
 from txievery.expresscheckout import api, interface
 
 
+
 class ItemTest(unittest.TestCase):
     def setUp(self):
         self.item = api.Item(decimal.Decimal("100.00"), "USD")

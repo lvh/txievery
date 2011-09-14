@@ -1,40 +1,14 @@
 """
-Direct access to Paypal's Express Checkout API.
+Direct access to PayPal's Express Checkout API.
 """
 import decimal
-import itertools
 import operator
-import urllib
 import urlparse
 
 from zope.interface import implements
 
-from twisted.internet import reactor
-from twisted.web import client, http_headers
-
-from txievery.expresscheckout import interface
-
-
-class NVPProducer(object):
-    """
-    A producer for a body consisting of NVP parts.
-    """
-    def __init__(self, pairs):
-        self.content = urllib.urlencode(pairs)
-        self.length = len(self.content)
-
-
-    def startProducing(self, consumer):
-        consumer.write(self.content)
-
-
-    def pauseProducing(self):
-        pass
-
-
-    def stopProducing(self):
-        pass
-
+from txievery.expresscheckout import interface, nvp
+from txievery.expresscheckout.nvp import encodePaymentRequests
 
 
 class Client(object):
@@ -49,16 +23,12 @@ class Client(object):
                               ("RETURNURL", returnURL),
                               ("CANCELURL", cancelURL)]
 
-        self.apiURL = apiURL
-        self.agent = client.Agent(reactor)
+        self.agent = nvp.Agent(apiURL)
 
 
     def _makeRequest(self, method, extraPairs):
-        headers = http_headers.Headers()
-        pairs = [("METHOD", method)] + self.defaultNVPData + extraPairs
-        bodyProducer = NVPProducer(pairs)
-        d = self.agent.request("GET", self.apiURL, headers, bodyProducer)
-        return d
+        pairs = [("METHOD", method)] + self._defaultPairs + extraPairs
+        return self.agent.makeRequest(pairs)
 
 
     def createCheckout(self, paymentRequests):
@@ -74,7 +44,7 @@ class Client(object):
                    "requested {1}".format(self, len(paymentRequests)))
             raise ValueError(msg)
 
-        pairs = paymentRequests
+        pairs = encodePaymentRequests(paymentRequests)
         d = self._makeRequest("SetExpressCheckout", pairs)
         d.addCallback(self._instantiateCheckout, paymentRequests)
 
@@ -140,53 +110,6 @@ class PaymentRequest(object):
     totalShippingAmount = _combinedAmount("shippingAmount")
     totalTaxAmount = _combinedAmount("taxAmount")
 
-
-
-REQUEST_KEYS = [("AMT", "totalAmount")]
-ITEM_KEYS = [("ITEMCATEGORY", "category")]
-
-
-def encodePaymentRequests(*requests):
-    """
-    Encodes a bunch of payment requests as pairs.
-    """
-    encodedRequests = itertools.starmap(_encodeRequest, enumerate(requests))
-    return itertools.chain.from_iterable(encodedRequests)
-
-
-def _encodeRequest(requestIndex, request):
-    """
-    Encodes a payment request as (name, value) pairs.
-    """
-    requestTemplate = "PAYMENTREQUEST_{}_{{}}".format(requestIndex)
-    requestPairs = _encodeAttributes(request, requestTemplate, REQUEST_KEYS)
-
-    encodedItems = (_encodeItem(requestTemplate, itemIndex, item, quantity)
-                    for itemIndex, (item, quantity)
-                    in enumerate(request.itemDetails))
-    itemPairs = itertools.chain.from_iterable(encodedItems)
-
-    return itertools.chain(requestPairs, itemPairs)
-
-
-def _encodeItem(requestTemplate, index, item, quantity):
-    """
-    Encodes a single item inside a payment request as (name, value) pairs.
-    """
-    itemTemplate = "L_{}_{{}}{}".format(requestTemplate, index)
-    quantityPairs = [(itemTemplate.format("QTY"), quantity)]
-    itemPairs = _encodeAttributes(item, itemTemplate, ITEM_KEYS)
-    return itertools.chain(quantityPairs, itemPairs)
-
-    
-def _encodeAttributes(obj, template, keysAndAttributes):
-    """
-    Encodes the attributes of an object as key, value pairs.
-    """
-    for key, attribute in keysAndAttributes:
-        value = getattr(obj, attribute, None)
-        if value is not None:
-            yield template.format(key), value
         
 
 def _twoDecimalPlaces(amount):
