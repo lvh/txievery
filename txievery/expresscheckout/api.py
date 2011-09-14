@@ -202,6 +202,7 @@ class Item(object):
     An item in a payment request.
     """
     implements(interface.IItem)
+    handlingAmount = shippingAmount = taxAmount = ZERO
 
     def __init__(self, amount, currency="USD"):
         self.amount = _twoDecimalPlaces(amount)
@@ -212,6 +213,7 @@ class Item(object):
     @property
     def category(self):
         return self._category
+
 
     @category.setter
     def category(self, category):

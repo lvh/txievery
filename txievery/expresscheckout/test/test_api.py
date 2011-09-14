@@ -73,3 +73,86 @@ class PaymentRequestItemAmountTest(unittest.TestCase):
         itemTwo = api.Item("200.00", "USD")
         paymentRequest = api.PaymentRequest([(itemOne, 1), (itemTwo, 1)])
         self.assertEqual(paymentRequest.itemAmount, decimal.Decimal("300.00"))
+
+
+
+class CombinedAmountTest(object):
+    amountName = totalAmountName = None
+
+    def setUp(self):
+        self.paymentRequest = api.PaymentRequest([])
+
+        self.highAmountItem = api.Item("100.00")
+        self.highAmount = decimal.Decimal("100.0")
+        setattr(self.highAmountItem, self.amountName, self.highAmount)
+
+        self.lowAmountItem = api.Item("100.00")
+        self.lowAmount = decimal.Decimal("10.0")
+        setattr(self.lowAmountItem, self.amountName, self.lowAmount)
+
+
+    def assertAmountEquals(self, expectedAmount):
+        amount = getattr(self.paymentRequest, self.totalAmountName)
+        self.assertEqual(amount, expectedAmount)
+
+
+    def test_allZero(self):
+        self.assertAmountEquals(decimal.Decimal("0"))
+
+
+    def test_amountOnRequest(self):
+        setattr(self.paymentRequest, self.amountName, self.lowAmount)
+        self.assertAmountEquals(self.lowAmount)
+
+
+    def test_amountOnItem(self):
+        items = [(self.lowAmountItem, 1)]
+        self.paymentRequest.itemDetails = items
+        self.assertAmountEquals(self.lowAmount)
+
+
+    def test_amountOnItems(self):
+        items = [(self.lowAmountItem, 5)]
+        self.paymentRequest.itemDetails = items
+        # Tax amount is for all items put together, not per item TODO: verify
+        self.assertAmountEquals(self.lowAmount)
+
+
+    def test_amountOnMixedItems(self):
+        items = [(self.lowAmountItem, 1), (self.highAmountItem, 1)]
+        self.paymentRequest.itemDetails = items
+        self.assertAmountEquals(self.lowAmount + self.highAmount)
+
+
+    def test_amountOnEverything(self):
+        setattr(self.paymentRequest, self.amountName, self.lowAmount)
+        items = [(self.lowAmountItem, 1), (self.highAmountItem, 10)]
+        self.paymentRequest.itemDetails = items
+        self.assertAmountEquals(2 * self.lowAmount + self.highAmount)
+
+
+
+class HandlingAmountTest(CombinedAmountTest, unittest.TestCase):
+    """
+    Tests if the handling amount for a payment request is correctly computed.
+    """
+    amountName = "handlingAmount"
+    totalAmountName = "totalHandlingAmount"
+
+
+
+class ShippingAmountTest(CombinedAmountTest, unittest.TestCase):
+    """
+    Tests if the shipping amount for a payment request is correctly computed.
+    """
+    amountName = "shippingAmount"
+    totalAmountName = "totalShippingAmount"
+
+
+
+class TaxAmountTest(CombinedAmountTest, unittest.TestCase):
+    """
+    Tests if the shipping amount for a payment request is correctly computed.
+    """
+    amountName = "taxAmount"
+    totalAmountName = "totalTaxAmount"
