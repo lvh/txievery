@@ -214,7 +214,7 @@ class Item(object):
         return self._category
 
     @category.setter
-    def setCategory(self, category):
+    def category(self, category):
         if category not in interface.CATEGORIES:
             raise ValueError("Cateogry must be one of {}, was {}"
                              .format(interface.CATEGORIES, category))
