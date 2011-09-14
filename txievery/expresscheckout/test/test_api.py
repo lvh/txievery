@@ -48,6 +48,7 @@ class ItemAmountQuantizationTest(unittest.TestCase):
 
 
 
-class PaymentRequestTest(unittest.TestCase):
-    pass
-
+class PaymentRequestItemAmountTest(unittest.TestCase):
+    def test_empty(self):
+        paymentRequest = api.PaymentRequest([])
+        self.assertEqual(paymentRequest.itemAmount)
