@@ -1,6 +1,7 @@
 """
 Support for PayPal's NVP API.
 """
+import itertools
 import urllib
 
 from twisted.internet import reactor
