@@ -60,7 +60,7 @@ def _encodeRequest(requestIndex, request):
     """
     Encodes a payment request as (name, value) pairs.
     """
-    requestTemplate = "PAYMENTREQUEST_{}_{{}}".format(requestIndex)
+    requestTemplate = "PAYMENTREQUEST_{0}_{{0}}".format(requestIndex)
     requestPairs = _encodeAttributes(request, requestTemplate, REQUEST_KEYS)
 
     encodedItems = (_encodeItem(requestTemplate, itemIndex, item, quantity)
@@ -75,7 +75,7 @@ def _encodeItem(requestTemplate, index, item, quantity):
     """
     Encodes a single item inside a payment request as (name, value) pairs.
     """
-    itemTemplate = "L_{}{}".format(requestTemplate, index)
+    itemTemplate = "L_{0}{1}".format(requestTemplate, index)
     quantityPairs = [(itemTemplate.format("QTY"), quantity)]
     itemPairs = _encodeAttributes(item, itemTemplate, ITEM_KEYS)
     return itertools.chain(quantityPairs, itemPairs)
