@@ -4,7 +4,6 @@ Direct access to PayPal's Express Checkout API.
 import decimal
 import itertools
 import operator
-import urlparse
 
 from zope.interface import implements
 
