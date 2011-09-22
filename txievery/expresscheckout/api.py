@@ -61,7 +61,7 @@ class Client(object):
 
     def _instantiateCheckout(self, response, paymentRequests):
         """
-        Instantiates a checkout object.
+        Instantiates a checkout object from a ``SetExpressCheckout`` response.
         """
         return Checkout(self, response["TOKEN"], paymentRequests)
 
