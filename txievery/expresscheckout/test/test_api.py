@@ -4,22 +4,50 @@ Tests for the Express Checkout txievery API.
 import decimal
 import mock
 
+from twisted.internet import defer
 from twisted.trial import unittest
 
 from txievery.expresscheckout import api, interface
 
 
+emptyPaymentRequest = api.PaymentRequest([])
+
+
+
 class ClientTest(unittest.TestCase):
     def setUp(self):
         self.client = api.Client("http://returnuri", "http://canceluri")
+        self.deferred = defer.Deferred()
         self.client.agent = mock.Mock()
+        self.client.agent.return_value = self.deferred
+
+
+    def test_createCheckout(self):
+        self.deferred.callback("TOKEN=1")
+
+        d = self.client.createCheckout(emptyPaymentRequest)
+        @d.addCallback
+        def verifyCheckout(checkout):
+            self.assertTrue(interface.ICheckout.providedBy(checkout))
+            self.assertEqual(checkout.token, "1")
+        return d
 
 
     def test_tooManyRequests(self):
-        request = api.PaymentRequest([])
         numRequests = self.client.MAX_PAYMENT_REQUESTS + 1
-        requests = [request] * numRequests
-        self.assertRaises(ValueError, self.client.createCheckout, requests)
+        requests = [emptyPaymentRequest] * numRequests
+        self.assertRaises(ValueError, self.client.createCheckout, *requests)
+
+
+
+class CheckoutTest(unittest.TestCase):
+    def test_getDetails(self):
+        client =  mock.Mock()
+        expectedToken = "1"
+        checkout = api.Checkout(client, expectedToken, [])
+        checkout.getDetails()
+        token = client.getCheckoutDetails.call_args[0][0]
+        self.assertEqual(token, expectedToken)
 
 
 

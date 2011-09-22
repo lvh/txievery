@@ -2,6 +2,7 @@
 Direct access to PayPal's Express Checkout API.
 """
 import decimal
+import itertools
 import operator
 import urlparse
 
@@ -35,11 +36,12 @@ class Client(object):
 
 
     def _makeRequest(self, method, extraPairs):
-        pairs = [("METHOD", method)] + self._defaultPairs + extraPairs
+        prefixPairs = [("METHOD", method), self._defaultPairs]
+        pairs = itertools.chain(prefixPairs, extraPairs)
         return self.agent.makeRequest(pairs)
 
 
-    def createCheckout(self, paymentRequests):
+    def createCheckout(self, *paymentRequests):
         """
         Creates a new checkout.
 
@@ -55,14 +57,14 @@ class Client(object):
         pairs = encodePaymentRequests(paymentRequests)
         d = self._makeRequest("SetExpressCheckout", pairs)
         d.addCallback(self._instantiateCheckout, paymentRequests)
+        return d
 
 
-    def _instantiateCheckout(self, responseContent, paymentRequests):
+    def _instantiateCheckout(self, response, paymentRequests):
         """
         Instantiates a checkout object.
         """
-        token = urlparse.parse_qs(responseContent)["TOKEN"]
-        return Checkout(self, token)
+        return Checkout(self, response["TOKEN"], paymentRequests)
 
 
     def getCheckoutDetails(self, token):

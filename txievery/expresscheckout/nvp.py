@@ -3,6 +3,7 @@ Support for PayPal's NVP API.
 """
 import itertools
 import urllib
+import urlparse
 
 from twisted.internet import reactor
 from twisted.web import client, http_headers
@@ -18,6 +19,7 @@ class NVPAgent(object):
         headers = http_headers.Headers()
         bodyProducer = NVPProducer(pairs)
         d = self._agent.request("GET", self.apiURL, headers, bodyProducer)
+        d.addCallback(urlparse.parse_qs)
         return d
 
 
