@@ -2,10 +2,24 @@
 Tests for the Express Checkout txievery API.
 """
 import decimal
+import mock
 
 from twisted.trial import unittest
 
 from txievery.expresscheckout import api, interface
+
+
+class ClientTest(unittest.TestCase):
+    def setUp(self):
+        self.client = api.Client("http://returnuri", "http://canceluri")
+        self.client.agent = mock.Mock()
+
+
+    def test_tooManyRequests(self):
+        request = api.PaymentRequest([])
+        numRequests = self.client.MAX_PAYMENT_REQUESTS + 1
+        requests = [request] * numRequests
+        self.assertRaises(ValueError, self.client.createCheckout, requests)
 
 
 

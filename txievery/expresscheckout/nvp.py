@@ -7,16 +7,17 @@ import urllib
 from twisted.internet import reactor
 from twisted.web import client, http_headers
 
-class Agent(object):
+
+class NVPAgent(object):
     def __init__(self, apiURL):
         self.apiURL = apiURL
-        self.agent = client.Agent(reactor)
+        self._agent = client.Agent(reactor)
 
 
     def makeRequest(self, pairs):
         headers = http_headers.Headers()
         bodyProducer = NVPProducer(pairs)
-        d = self.agent.request("GET", self.apiURL, headers, bodyProducer)
+        d = self._agent.request("GET", self.apiURL, headers, bodyProducer)
         return d
 
 
@@ -74,7 +75,7 @@ def _encodeItem(requestTemplate, index, item, quantity):
     """
     Encodes a single item inside a payment request as (name, value) pairs.
     """
-    itemTemplate = "L_{}_{{}}{}".format(requestTemplate, index)
+    itemTemplate = "L_{}{}".format(requestTemplate, index)
     quantityPairs = [(itemTemplate.format("QTY"), quantity)]
     itemPairs = _encodeAttributes(item, itemTemplate, ITEM_KEYS)
     return itertools.chain(quantityPairs, itemPairs)

@@ -11,6 +11,14 @@ from txievery.expresscheckout import interface, nvp
 from txievery.expresscheckout.nvp import encodePaymentRequests
 
 
+SANDBOX_SIGNATURE_URI = "https://api-3t.sandbox.paypal.com/nvp"
+SANDBOX_CERTIFICATE_URI = "https://api.sandbox.paypal.com/nvp"
+
+LIVE_SIGNATURE_URI = "https://api-3t.paypal.com/nvp"
+LIVE_CERTIFICATE_URI = "https://api.paypal.com/nvp"
+
+
+
 class Client(object):
     """
     A client for dealing with Paypal's Express Checkout NVP API.
@@ -18,12 +26,12 @@ class Client(object):
     API_VERSION = "74.0"
     MAX_PAYMENT_REQUESTS = 10
     
-    def __init__(self, returnURL, cancelURL, apiURL):
+    def __init__(self, returnURL, cancelURL, apiURL=SANDBOX_CERTIFICATE_URI):
         self._defaultPairs = [("VERSION", self.API_VERSION),
                               ("RETURNURL", returnURL),
                               ("CANCELURL", cancelURL)]
 
-        self.agent = nvp.Agent(apiURL)
+        self.agent = nvp.NVPAgent(apiURL)
 
 
     def _makeRequest(self, method, extraPairs):
@@ -100,7 +108,8 @@ class PaymentRequest(object):
     def totalAmount(self):
         return (self.itemAmount + self.totalTaxAmount
                 + self.totalHandlingAmount + self.totalShippingAmount)
-        
+
+
     @property
     def itemAmount(self):
         return sum(qty * item.amount for item, qty in self.itemDetails)
