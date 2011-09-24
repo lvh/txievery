@@ -36,6 +36,7 @@ class NVPProducerTest(unittest.TestCase):
         producer.startProducing(consumer)
         self.assertEqual(consumer.getvalue(), "a=b")
 
+
     def test_pauseOrStopProducing(self):
         """
         Tests that ``pauseProducing`` and ``stopProducing`` are no-ops.

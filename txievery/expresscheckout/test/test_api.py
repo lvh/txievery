@@ -17,19 +17,20 @@ emptyPaymentRequest = api.PaymentRequest([])
 class ClientTest(unittest.TestCase):
     def setUp(self):
         self.client = api.Client("http://returnuri", "http://canceluri")
-        self.deferred = defer.Deferred()
+
+        self.deferred = d = defer.Deferred()
         self.client.agent = mock.Mock()
-        self.client.agent.return_value = self.deferred
+        self.client.agent.makeRequest.return_value = d
 
 
     def test_createCheckout(self):
-        self.deferred.callback("TOKEN=1")
-
         d = self.client.createCheckout(emptyPaymentRequest)
         @d.addCallback
         def verifyCheckout(checkout):
             self.assertTrue(interface.ICheckout.providedBy(checkout))
             self.assertEqual(checkout.token, "1")
+
+        self.deferred.callback({"TOKEN": "1"})
         return d
 
 
@@ -89,6 +90,12 @@ class ItemAmountQuantizationTest(unittest.TestCase):
     def test_quantization(self):
         item = api.Item(decimal.Decimal("100.12345"), "USD")
         expected = decimal.Decimal("100.12")
+        self.assertEqual(item.amount, expected)
+
+
+    def test_rounding(self):
+        item = api.Item(decimal.Decimal("100.129"), "USD")
+        expected = decimal.Decimal("100.13")
         self.assertEqual(item.amount, expected)
 
 
