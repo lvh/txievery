@@ -40,6 +40,7 @@ class RequestEncodingTest(unittest.TestCase):
         categories = request.categories
         expected = [('PAYMENTREQUEST_0_AMT', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_QTY0', 1),
+                    ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', categories[0])]
         self.assertEqual(list(encoded), expected)
 
@@ -53,8 +54,10 @@ class RequestEncodingTest(unittest.TestCase):
         categories = request.categories
         expected = [('PAYMENTREQUEST_0_AMT', decimal.Decimal('300200.00')),
                     ('L_PAYMENTREQUEST_0_QTY0', 2),
+                    ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', categories[0]),
                     ('L_PAYMENTREQUEST_0_QTY1', 3),
+                    ('L_PAYMENTREQUEST_0_AMT1', decimal.Decimal('100000.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY1', categories[1])]
         self.assertEqual(list(encoded), expected)
 
@@ -68,11 +71,14 @@ class RequestEncodingTest(unittest.TestCase):
         categories = [r.categories for r in requests]
         expected = [('PAYMENTREQUEST_0_AMT', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_QTY0', 1),
+                    ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', categories[0][0]),
                     ('PAYMENTREQUEST_1_AMT', decimal.Decimal('300200.00')),
                     ('L_PAYMENTREQUEST_1_QTY0', 2),
+                    ('L_PAYMENTREQUEST_1_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_1_ITEMCATEGORY0', categories[1][0]),
                     ('L_PAYMENTREQUEST_1_QTY1', 3),
+                    ('L_PAYMENTREQUEST_1_AMT1', decimal.Decimal('100000.00')),
                     ('L_PAYMENTREQUEST_1_ITEMCATEGORY1', categories[1][1])]
         self.assertEqual(list(encoded), expected)
 
@@ -92,6 +98,7 @@ class ItemEncodingTest(unittest.TestCase):
         """
         expectedCategory = self.items[0].category
         expected = [('L_PAYMENTREQUEST_0_QTY0', 1),
+                    ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', expectedCategory)]
         self._testEncode(0, self.items[0], 1, expected)
 
@@ -102,5 +109,6 @@ class ItemEncodingTest(unittest.TestCase):
         """
         expectedCategory = self.items[0].category
         expected = [('L_PAYMENTREQUEST_0_QTY0', 10),
+                    ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', expectedCategory)]
         self._testEncode(0, self.items[0], 10, expected)
