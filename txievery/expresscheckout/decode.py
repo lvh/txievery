@@ -70,9 +70,11 @@ ITEM_KEYS = [("ITEMCATEGORY", "category")]
 def _parseItem(details, template):
     amount = details[template.format("AMT")]
     item = api.Item(amount)
+
     for key, attr in ITEM_KEYS:
-        value = details.get(key, None)
+        value = details.get(key)
         if value is None:
             continue
         setattr(item, attr, value)
+
     return item
