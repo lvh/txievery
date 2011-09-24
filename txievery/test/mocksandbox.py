@@ -50,41 +50,15 @@ class Endpoint(resource.Resource):
 
 
 
-def getPaymentRequests(details):
-    requests = []
-    firstEmptyIndex = 0
-    indexes = xrange(10)
-
-    for index in indexes:
-        template = "PAYMENTREQUEST_{}_{{}}".format(index)
-        if template.format("AMT") not in details:
-            firstEmptyIndex = index
-            break
-
-        items = _getItemsInPaymentRequest(details, index)
-
-    for remaining in indexes:
-        if "PAYMENTREQUEST_{}_AMT".format(remaining) in details:
-            raise ValueError("Payment request with index {} exists, but there"
-                             " was no payment request with index {}"
-                             .format(remaining, firstEmptyIndex))
-
-    return requests
-
-
-def _getItemsInPaymentRequest(details, paymentRequestIndex):
-    items = []
-    template = "L_PAYMENTREQUEST_{}_{{{}}}{{}}".format(paymentRequestIndex)
-
-
 class Sandbox(object):
     def __init__(self):
         self._checkouts = {}
 
 
     def do_SetExpressCheckout(self, details):
-        pass
+        nvp.parseCheckout()
 
 
     def do_GetExpressCheckoutDetails(self, details):
-        pass
+        checkout = self._checkouts[details["TOKEN"]]
+        return nvp.encodeCheckout(checkout)

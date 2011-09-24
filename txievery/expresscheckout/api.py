@@ -8,7 +8,7 @@ import operator
 from zope.interface import implements
 
 from txievery.expresscheckout import interface, nvp
-from txievery.expresscheckout.nvp import encodePaymentRequests
+from txievery.expresscheckout.encode import encodePaymentRequests
 
 
 SANDBOX_SIGNATURE_URI = "https://api-3t.sandbox.paypal.com/nvp"
