@@ -20,6 +20,14 @@ class APICallDetailsTest(unittest.TestCase):
         self.assertRaises(KeyError, lambda: acd["z"])
 
 
+    def test_containment(self):
+        pairs = [("a", "b"), ("c", "d")]
+        acd = mocksandbox.APICallDetails(pairs)
+        self.assertIn("a", acd)
+        self.assertNotIn("e", acd)
+        
+
+
     def test_iteration(self):
         pairs = [("a", "b"), ("c", "d")]
         self.assertEquals(list(mocksandbox.APICallDetails(pairs)), pairs)
