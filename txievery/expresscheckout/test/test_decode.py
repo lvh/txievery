@@ -8,21 +8,6 @@ from twisted.trial import unittest
 from txievery.expresscheckout import decode
 
 
-EXAMPLE_PAIRS = [
-    ('PAYMENTREQUEST_0_AMT', "100.00"),
-    ('L_PAYMENTREQUEST_0_QTY0', "1"),
-    ('L_PAYMENTREQUEST_0_AMT0', "100.00"),
-    ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', "Physical"),
-
-    ('PAYMENTREQUEST_1_AMT', '300200.00'),
-    ('L_PAYMENTREQUEST_1_QTY0', "2"),
-    ('L_PAYMENTREQUEST_1_AMT0', "100.00"),
-    ('L_PAYMENTREQUEST_1_ITEMCATEGORY0', "Physical"),
-    ('L_PAYMENTREQUEST_1_QTY1', "3"),
-    ('L_PAYMENTREQUEST_1_AMT1', "100000.00"),
-    ('L_PAYMENTREQUEST_1_ITEMCATEGORY1', "Physical")]
-EXAMPLE_DETAILS = dict(EXAMPLE_PAIRS)
-
 exampleDetails = {'PAYMENTREQUEST_0_AMT': "100.00",
                   'L_PAYMENTREQUEST_0_QTY0': "1",
                   'L_PAYMENTREQUEST_0_AMT0': "100.00",
