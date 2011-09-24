@@ -54,7 +54,7 @@ class CheckoutTest(unittest.TestCase):
 
 class ItemTest(unittest.TestCase):
     def setUp(self):
-        self.item = api.Item(decimal.Decimal("100.00"), "USD")
+        self.item = api.Item(decimal.Decimal("100.00"))
 
 
     def test_validCategory(self):
@@ -83,18 +83,18 @@ class ItemAmountQuantizationTest(unittest.TestCase):
     """
     def test_noQuantizationNecessary(self):
         amount = decimal.Decimal("100.00")
-        item = api.Item(amount, "USD")
+        item = api.Item(amount)
         self.assertEqual(item.amount, amount)
 
 
     def test_quantization(self):
-        item = api.Item(decimal.Decimal("100.12345"), "USD")
+        item = api.Item(decimal.Decimal("100.12345"))
         expected = decimal.Decimal("100.12")
         self.assertEqual(item.amount, expected)
 
 
     def test_rounding(self):
-        item = api.Item(decimal.Decimal("100.129"), "USD")
+        item = api.Item(decimal.Decimal("100.129"))
         expected = decimal.Decimal("100.13")
         self.assertEqual(item.amount, expected)
 
@@ -107,20 +107,20 @@ class PaymentRequestItemAmountTest(unittest.TestCase):
 
 
     def test_oneItem(self):
-        item = api.Item("100.00", "USD")
+        item = api.Item("100.00")
         paymentRequest = api.PaymentRequest([(item, 1)])
         self.assertEqual(paymentRequest.itemAmount, decimal.Decimal("100.00"))
 
 
     def test_twoItems(self):
-        item = api.Item("100.00", "USD")
+        item = api.Item("100.00")
         paymentRequest = api.PaymentRequest([(item, 2)])
         self.assertEqual(paymentRequest.itemAmount, decimal.Decimal("200.00"))
 
 
     def test_combinedItems(self):
-        itemOne = api.Item("100.00", "USD")
-        itemTwo = api.Item("200.00", "USD")
+        itemOne = api.Item("100.00")
+        itemTwo = api.Item("200.00")
         paymentRequest = api.PaymentRequest([(itemOne, 1), (itemTwo, 1)])
         self.assertEqual(paymentRequest.itemAmount, decimal.Decimal("300.00"))
 

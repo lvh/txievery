@@ -9,8 +9,8 @@ from txievery.expresscheckout import api
 from txievery.expresscheckout.encode import encodePaymentRequests, _encodeItem
 
 
-CHEAP_ITEM = api.Item("100.00", "HKD")
-EXPENSIVE_ITEM = api.Item("100000.00", "HKD")
+CHEAP_ITEM = api.Item("100.00")
+EXPENSIVE_ITEM = api.Item("100000.00")
 
 
 def categories(itemDetails):
