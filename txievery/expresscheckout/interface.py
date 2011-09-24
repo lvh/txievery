@@ -68,13 +68,6 @@ class IItem(Interface):
         rounded to two places.
         """)
 
-    
-    currency = Attribute(
-        """
-        The currency code for the currency in which the unit price is
-        expressed.
-        """)
-
 
     category = Attribute(
         """
