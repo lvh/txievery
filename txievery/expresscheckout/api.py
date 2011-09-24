@@ -96,8 +96,10 @@ def _combinedAmount(attr):
 class PaymentRequest(object):
     handlingAmount = shippingAmount = taxAmount = ZERO
     
-    def __init__(self, itemDetails, action=interface.SALE):
+    def __init__(self, itemDetails, currency="USD", action=interface.SALE):
         self.itemDetails = itemDetails
+        self.currency = currency
+        self.action = action
 
 
     @property
@@ -137,9 +139,8 @@ class Item(object):
     implements(interface.IItem)
     handlingAmount = shippingAmount = taxAmount = ZERO
 
-    def __init__(self, amount, currency="USD"):
+    def __init__(self, amount):
         self.amount = _twoDecimalPlaces(amount)
-        self.currency = currency
 
     
     _category = interface.PHYSICAL
