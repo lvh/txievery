@@ -4,8 +4,8 @@ Support for decoding NVP API to Express Checkout API objects.
 from txievery.expresscheckout import api
 
 
-def parseCheckout(details):
-    paymentRequests = _parsePaymentRequests(details)
+def decodeCheckout(details):
+    paymentRequests = _decodePaymentRequests(details)
     return api.Checkout(paymentRequests)
 
 
@@ -16,7 +16,7 @@ def _verifyLastElement(firstEmptyIndex, template, remainingIndices, details):
                              .format(remaining, firstEmptyIndex))
 
 
-def _parsePaymentRequests(details):
+def _decodePaymentRequests(details):
     requests = []
     firstEmpty = 0
     idxs = xrange(10)
@@ -27,7 +27,7 @@ def _parsePaymentRequests(details):
             firstEmpty = idx
             break
 
-        itemDetails = _parseItemDetails(details, idx)
+        itemDetails = _decodeItemDetails(details, idx)
         request = api.PaymentRequest(itemDetails)
         requests.append(request)
 
@@ -36,7 +36,7 @@ def _parsePaymentRequests(details):
     return requests
 
 
-def _parseItemDetails(details, paymentRequestIndex):
+def _decodeItemDetails(details, paymentRequestIndex):
     """
     Gets the item details from payment request details.
 
@@ -55,7 +55,7 @@ def _parseItemDetails(details, paymentRequestIndex):
             firstEmpty = idx
             break
 
-        item, qty = _parseItem(details, itemTemplate)
+        item, qty = _decodeItem(details, itemTemplate)
         itemDetails.append((item, qty))
 
     verifyTemplate = "L_PAYMENTREQUEST_{0}_AMT{{0}})".format(paymentRequestIndex)
@@ -67,7 +67,10 @@ def _parseItemDetails(details, paymentRequestIndex):
 ITEM_KEYS = [("ITEMCATEGORY", "category")]
 
 
-def _parseItem(details, template):
+def _decodeItem(details, template):
+    """
+    Gets a single item from payment request details.
+    """
     amount = details[template.format("AMT")]
     item = api.Item(amount)
 

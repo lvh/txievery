@@ -58,7 +58,7 @@ class Sandbox(object):
 
 
     def do_SetExpressCheckout(self, details):
-        checkout = decode.parseCheckout(details)
+        checkout = decode.decodeCheckout(details)
         token = self._tokens.next()
         self._checkouts[token] = checkout
         return {"TOKEN": token}
