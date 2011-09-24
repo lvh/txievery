@@ -1,6 +1,8 @@
 """
 Support for decoding NVP API to Express Checkout API objects.
 """
+from functools import partial
+
 from txievery.expresscheckout import api
 
 
@@ -9,21 +11,18 @@ def decodeCheckout(details):
     return api.Checkout(paymentRequests)
 
 
-def _verifyLastElement(firstEmptyIndex, template, remainingIndices, details):
-    for remaining in remainingIndices:
-        if template.format(remaining) in details:
-            raise ValueError("Element at index {0} after empty index {1}"
-                             .format(remaining, firstEmptyIndex))
+baseTemplate = "PAYMENTREQUEST_{requestIndex}_{key}".format
+baseListTemplate = "L_PAYMENTREQUEST_{requestIndex}_{key}{itemIndex}".format
 
 
 def _decodePaymentRequests(details):
     requests = []
     firstEmpty = 0
-    idxs = xrange(10)
+    idxs = iter(xrange(10))
 
     for idx in idxs:
-        template = "PAYMENTREQUEST_{0}_{{0}}".format(idx)
-        if template.format("AMT") not in details:
+        template = partial(baseTemplate, requestIndex=idx)
+        if template(key="AMT") not in details:
             firstEmpty = idx
             break
 
@@ -31,12 +30,13 @@ def _decodePaymentRequests(details):
         request = api.PaymentRequest(itemDetails)
         requests.append(request)
 
-    _verifyLastElement(firstEmpty, "PAYMENTREQUEST_{0}_AMT", idxs, details)
+    verifyTemplate = partial(baseTemplate, key="AMT")
+    _verifyLastElement(firstEmpty, verifyTemplate, idxs, details)
 
     return requests
 
 
-def _decodeItemDetails(details, paymentRequestIndex):
+def _decodeItemDetails(details, requestIndex):
     """
     Gets the item details from payment request details.
 
@@ -45,20 +45,20 @@ def _decodeItemDetails(details, paymentRequestIndex):
     items from.
     """
     itemDetails = []
-    template = "L_PAYMENTREQUEST_{0}_{{{0}}}{{0}}".format(paymentRequestIndex)
+    itemTemplate = partial(baseListTemplate, requestIndex=requestIndex)
     firstEmpty = 0
-    idxs = xrange(10)
-
+    idxs = iter(xrange(10))
+    
     for idx in idxs:
-        itemTemplate = template.format(idx)
-        if template.format("AMT") not in details:
+        keyTemplate = partial(itemTemplate, itemIndex=idx)
+        if keyTemplate(key="AMT") not in details:
             firstEmpty = idx
             break
 
-        item, qty = _decodeItem(details, itemTemplate)
+        item, qty = _decodeItem(details, keyTemplate)
         itemDetails.append((item, qty))
 
-    verifyTemplate = "L_PAYMENTREQUEST_{0}_AMT{{0}})".format(paymentRequestIndex)
+    verifyTemplate = partial(itemTemplate, key="AMT")
     _verifyLastElement(firstEmpty, verifyTemplate, idxs, details)
 
     return itemDetails
@@ -71,7 +71,8 @@ def _decodeItem(details, template):
     """
     Gets a single item from payment request details.
     """
-    amount = details[template.format("AMT")]
+    quantity = int(details[template(key="QTY")])
+    amount = details[template(key="AMT")]
     item = api.Item(amount)
 
     for key, attr in ITEM_KEYS:
@@ -80,4 +81,11 @@ def _decodeItem(details, template):
             continue
         setattr(item, attr, value)
 
-    return item
+    return item, quantity
+
+
+def _verifyLastElement(firstEmptyIndex, template, remainingIndices, details):
+    for remaining in remainingIndices:
+        if template(itemIndex=remaining) in details:
+            raise ValueError("Element at index {0} after empty index {1}"
+                             .format(remaining, firstEmptyIndex))
