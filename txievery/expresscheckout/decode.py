@@ -9,26 +9,29 @@ def parseCheckout(details):
     return api.Checkout(paymentRequests)
 
 
+def _verifyLastElement(firstEmptyIndex, template, remainingIndices, details):
+    for remaining in remainingIndices:
+        if template.format(remaining) in details:
+            raise ValueError("Element at index {0} after empty index {1}"
+                             .format(remaining, firstEmptyIndex))
+
+
 def _parsePaymentRequests(details):
     requests = []
-    firstEmptyIndex = 0
-    indexes = xrange(10)
+    firstEmpty = 0
+    idxs = xrange(10)
 
-    for index in indexes:
-        template = "PAYMENTREQUEST_{}_{{}}".format(index)
+    for idx in idxs:
+        template = "PAYMENTREQUEST_{0}_{{0}}".format(idx)
         if template.format("AMT") not in details:
-            firstEmptyIndex = index
+            firstEmpty = idx
             break
 
-        itemDetails = _parseItemDetails(details, index)
+        itemDetails = _parseItemDetails(details, idx)
         request = api.PaymentRequest(itemDetails)
         requests.append(request)
 
-    for remaining in indexes:
-        if "PAYMENTREQUEST_{}_AMT".format(remaining) in details:
-            raise ValueError("Payment request with index {} exists, but there"
-                             " was no payment request with index {}"
-                             .format(remaining, firstEmptyIndex))
+    _verifyLastElement(firstEmpty, "PAYMENTREQUEST_{0}_AMT", idxs, details)
 
     return requests
 
@@ -43,19 +46,33 @@ def _parseItemDetails(details, paymentRequestIndex):
     """
     itemDetails = []
     template = "L_PAYMENTREQUEST_{0}_{{{0}}}{{0}}".format(paymentRequestIndex)
-    firstEmptyIndex = 0
-    indexes = xrange(10)
+    firstEmpty = 0
+    idxs = xrange(10)
 
-    for index in indexes:
-        itemTemplate = template.format(index)
+    for idx in idxs:
+        itemTemplate = template.format(idx)
         if template.format("AMT") not in details:
-            firstEmptyIndex = index
+            firstEmpty = idx
             break
 
-        itemDetails.append(_parseItem(details, template))
+        item, qty = _parseItem(details, itemTemplate)
+        itemDetails.append((item, qty))
+
+    verifyTemplate = "L_PAYMENTREQUEST_{0}_AMT{{0}})".format(paymentRequestIndex)
+    _verifyLastElement(firstEmpty, verifyTemplate, idxs, details)
 
     return itemDetails
 
 
+ITEM_KEYS = [("ITEMCATEGORY", "category")]
+
+
 def _parseItem(details, template):
-    pass
+    amount = details[template.format("AMT")]
+    item = api.Item(amount)
+    for key, attr in ITEM_KEYS:
+        value = details.get(key, None)
+        if value is None:
+            continue
+        setattr(item, attr, value)
+    return item
