@@ -3,10 +3,11 @@ A mock Paypal sandbox.
 """
 import urllib
 import urlparse
+import itertools
 
 from twisted.web import resource
 
-from txievery.expresscheckout import nvp
+from txievery.expresscheckout import encode, decode
 
 
 class APICallDetails(object):
@@ -53,12 +54,16 @@ class Endpoint(resource.Resource):
 class Sandbox(object):
     def __init__(self):
         self._checkouts = {}
+        self._tokens = (str(i) for i in itertools.count())
 
 
     def do_SetExpressCheckout(self, details):
-        nvp.parseCheckout()
+        checkout = decode.parseCheckout(details)
+        token = self._tokens.next()
+        self._checkouts[token] = checkout
+        return {"TOKEN": token}
 
 
     def do_GetExpressCheckoutDetails(self, details):
         checkout = self._checkouts[details["TOKEN"]]
-        return nvp.encodeCheckout(checkout)
+        return encode.encodeCheckout(checkout)

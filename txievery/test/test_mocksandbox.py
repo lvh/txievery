@@ -8,6 +8,7 @@ import urlparse
 
 from twisted.trial import unittest
 
+from txievery.expresscheckout import encode
 from txievery.test import mocksandbox
 
 
@@ -25,7 +26,6 @@ class APICallDetailsTest(unittest.TestCase):
         acd = mocksandbox.APICallDetails(pairs)
         self.assertIn("a", acd)
         self.assertNotIn("e", acd)
-        
 
 
     def test_iteration(self):
@@ -70,3 +70,32 @@ class EndpointTest(unittest.TestCase):
 
     def test_missingMethod(self):
         self.assertRaises(ValueError, self._sendRequest, [])
+
+
+
+class SandboxTest(unittest.TestCase):
+    def setUp(self):
+        self.sandbox = mocksandbox.Sandbox()
+
+
+    def test_setExpressCheckout(self):
+        details = []
+        self.assertEqual(len(self.sandbox._checkouts), 0)
+        response = self.sandbox.do_SetExpressCheckout(details)
+        self.assertEqual(len(self.sandbox._checkouts), 1)
+        response = urlparse.parse_qs(response)
+        self.assertEqual(len(response), 1)
+        self.assertIn("TOKEN", response)
+
+
+    def test_roundTrip(self):
+        checkout = None
+        details = encode.encodeCheckout(checkout)
+        response = self.sandbox.do_SetExpressCheckout(details)
+        token = urlparse.parse_qs(response)["TOKEN"]
+
+        details = urllib.urlencode({"TOKEN": token})
+        response = self.sandbox.do_GetExpressCheckoutDetails(details)
+        receivedCheckout = decode.parseCheckout(urlparse.parse_qs(response))
+
+        self.assertEqual(checkout, receivedCheckout)
