@@ -9,7 +9,7 @@ ITEM_KEYS = [("AMT", "amount"), ("ITEMCATEGORY", "category")]
 
 
 def encodeCheckout(checkout):
-    return encodePaymentRequests(checkout)
+    return encodePaymentRequests(*checkout.paymentRequests)
 
 
 def encodePaymentRequests(*requests):
