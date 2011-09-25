@@ -5,7 +5,9 @@ import itertools
 
 
 REQUEST_KEYS = [("AMT", "totalAmount")]
-ITEM_KEYS = [("AMT", "amount"), ("ITEMCATEGORY", "category")]
+ITEM_KEYS = [("AMT", "amount"),
+             ("ITEMCATEGORY", "category"),
+             ("NAME", "name")]
 
 
 def encodeCheckout(checkout):

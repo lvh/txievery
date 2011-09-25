@@ -71,9 +71,11 @@ def _decodeItem(details, template):
     """
     Gets a single item from payment request details.
     """
-    quantity = int(details[template(key="QTY")])
-    amount = details[template(key="AMT")]
-    item = api.Item(amount)
+    def get(key):
+        return details.get(template(key=key))
+
+    quantity, name, amount = [get(k) for k in ("QTY", "NAME", "AMT")]
+    item = api.Item(name, amount)
 
     for key, attr in ITEM_KEYS:
         value = details.get(key)
@@ -81,7 +83,7 @@ def _decodeItem(details, template):
             continue
         setattr(item, attr, value)
 
-    return item, quantity
+    return item, int(quantity)
 
 
 def _verifyLastElement(firstEmptyIndex, template, remainingIndices, details):

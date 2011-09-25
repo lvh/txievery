@@ -54,7 +54,7 @@ class CheckoutTest(unittest.TestCase):
 
 class ItemTest(unittest.TestCase):
     def setUp(self):
-        self.item = api.Item(decimal.Decimal("100.00"))
+        self.item = api.Item("Cookie", decimal.Decimal("100.00"))
 
 
     def test_validCategory(self):
@@ -83,18 +83,18 @@ class ItemAmountQuantizationTest(unittest.TestCase):
     """
     def test_noQuantizationNecessary(self):
         amount = decimal.Decimal("100.00")
-        item = api.Item(amount)
+        item = api.Item("Cookie", amount)
         self.assertEqual(item.amount, amount)
 
 
     def test_quantization(self):
-        item = api.Item(decimal.Decimal("100.12345"))
+        item = api.Item("Cookie", decimal.Decimal("100.12345"))
         expected = decimal.Decimal("100.12")
         self.assertEqual(item.amount, expected)
 
 
     def test_rounding(self):
-        item = api.Item(decimal.Decimal("100.129"))
+        item = api.Item("Cookie", decimal.Decimal("100.129"))
         expected = decimal.Decimal("100.13")
         self.assertEqual(item.amount, expected)
 
@@ -107,20 +107,20 @@ class PaymentRequestItemAmountTest(unittest.TestCase):
 
 
     def test_oneItem(self):
-        item = api.Item("100.00")
+        item = api.Item("Cookie", "100.00")
         paymentRequest = api.PaymentRequest([(item, 1)])
         self.assertEqual(paymentRequest.itemAmount, decimal.Decimal("100.00"))
 
 
     def test_twoItems(self):
-        item = api.Item("100.00")
+        item = api.Item("Cookie", "100.00")
         paymentRequest = api.PaymentRequest([(item, 2)])
         self.assertEqual(paymentRequest.itemAmount, decimal.Decimal("200.00"))
 
 
     def test_combinedItems(self):
-        itemOne = api.Item("100.00")
-        itemTwo = api.Item("200.00")
+        itemOne = api.Item("Cookie", "100.00")
+        itemTwo = api.Item("Cake", "200.00")
         paymentRequest = api.PaymentRequest([(itemOne, 1), (itemTwo, 1)])
         self.assertEqual(paymentRequest.itemAmount, decimal.Decimal("300.00"))
 
@@ -132,11 +132,11 @@ class CombinedAmountTest(object):
     def setUp(self):
         self.paymentRequest = api.PaymentRequest([])
 
-        self.highAmountItem = api.Item("100.00")
+        self.highAmountItem = api.Item("Cookie", "100.00")
         self.highAmount = decimal.Decimal("100.0")
         setattr(self.highAmountItem, self.amountName, self.highAmount)
 
-        self.lowAmountItem = api.Item("100.00")
+        self.lowAmountItem = api.Item("Cookie", "100.00")
         self.lowAmount = decimal.Decimal("10.0")
         setattr(self.lowAmountItem, self.amountName, self.lowAmount)
 

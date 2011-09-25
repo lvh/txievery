@@ -139,7 +139,8 @@ class Item(object):
     implements(interface.IItem)
     handlingAmount = shippingAmount = taxAmount = ZERO
 
-    def __init__(self, amount):
+    def __init__(self, name, amount):
+        self.name = name
         self.amount = _twoDecimalPlaces(amount)
 
     

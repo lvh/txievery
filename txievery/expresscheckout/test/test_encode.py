@@ -9,8 +9,8 @@ from txievery.expresscheckout import api
 from txievery.expresscheckout.encode import encodePaymentRequests, _encodeItem
 
 
-CHEAP_ITEM = api.Item("100.00")
-EXPENSIVE_ITEM = api.Item("100000.00")
+CHEAP_ITEM = api.Item("Cake", "100.00")
+EXPENSIVE_ITEM = api.Item("Diamond", "100000.00")
 
 
 def categories(itemDetails):
@@ -41,7 +41,8 @@ class RequestEncodingTest(unittest.TestCase):
         expected = [('PAYMENTREQUEST_0_AMT', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_QTY0', 1),
                     ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
-                    ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', categories[0])]
+                    ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', categories[0]),
+                    ('L_PAYMENTREQUEST_0_NAME0', 'Cake')]
         self.assertEqual(list(encoded), expected)
 
 
@@ -56,9 +57,11 @@ class RequestEncodingTest(unittest.TestCase):
                     ('L_PAYMENTREQUEST_0_QTY0', 2),
                     ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', categories[0]),
+                    ('L_PAYMENTREQUEST_0_NAME0', 'Cake'),
                     ('L_PAYMENTREQUEST_0_QTY1', 3),
                     ('L_PAYMENTREQUEST_0_AMT1', decimal.Decimal('100000.00')),
-                    ('L_PAYMENTREQUEST_0_ITEMCATEGORY1', categories[1])]
+                    ('L_PAYMENTREQUEST_0_ITEMCATEGORY1', categories[1]),
+                    ('L_PAYMENTREQUEST_0_NAME1', 'Diamond'),]
         self.assertEqual(list(encoded), expected)
 
 
@@ -73,13 +76,16 @@ class RequestEncodingTest(unittest.TestCase):
                     ('L_PAYMENTREQUEST_0_QTY0', 1),
                     ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', categories[0][0]),
+                    ('L_PAYMENTREQUEST_0_NAME0', 'Cake'),
                     ('PAYMENTREQUEST_1_AMT', decimal.Decimal('300200.00')),
                     ('L_PAYMENTREQUEST_1_QTY0', 2),
                     ('L_PAYMENTREQUEST_1_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_1_ITEMCATEGORY0', categories[1][0]),
+                    ('L_PAYMENTREQUEST_1_NAME0', 'Cake'),
                     ('L_PAYMENTREQUEST_1_QTY1', 3),
                     ('L_PAYMENTREQUEST_1_AMT1', decimal.Decimal('100000.00')),
-                    ('L_PAYMENTREQUEST_1_ITEMCATEGORY1', categories[1][1])]
+                    ('L_PAYMENTREQUEST_1_ITEMCATEGORY1', categories[1][1]),
+                    ('L_PAYMENTREQUEST_1_NAME1', 'Diamond')]
         self.assertEqual(list(encoded), expected)
 
 
@@ -99,7 +105,8 @@ class ItemEncodingTest(unittest.TestCase):
         expectedCategory = self.items[0].category
         expected = [('L_PAYMENTREQUEST_0_QTY0', 1),
                     ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
-                    ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', expectedCategory)]
+                    ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', expectedCategory),
+                    ('L_PAYMENTREQUEST_0_NAME0', 'Cake')]
         self._testEncode(0, self.items[0], 1, expected)
 
 
@@ -110,5 +117,6 @@ class ItemEncodingTest(unittest.TestCase):
         expectedCategory = self.items[0].category
         expected = [('L_PAYMENTREQUEST_0_QTY0', 10),
                     ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
-                    ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', expectedCategory)]
+                    ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', expectedCategory),
+                    ('L_PAYMENTREQUEST_0_NAME0', 'Cake')]
         self._testEncode(0, self.items[0], 10, expected)
