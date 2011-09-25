@@ -59,6 +59,7 @@ class IPaymentRequest(Interface):
 CATEGORIES = PHYSICAL, DIGITAL = "Physical", "Digital"
 
 
+
 class IItem(Interface):
     amount = Attribute(
         """
