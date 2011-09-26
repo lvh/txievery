@@ -38,7 +38,8 @@ class RequestEncodingTest(unittest.TestCase):
         request = self.singleItemRequest
         encoded = encodePaymentRequests(request)
         categories = request.categories
-        expected = [('PAYMENTREQUEST_0_AMT', decimal.Decimal('100.00')),
+        expected = [('PAYMENTREQUEST_0_PAYMENTACTION', 'Sale'),
+                    ('PAYMENTREQUEST_0_AMT', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_QTY0', 1),
                     ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', categories[0]),
@@ -53,7 +54,8 @@ class RequestEncodingTest(unittest.TestCase):
         request = self.multipleItemRequest
         encoded = encodePaymentRequests(request)
         categories = request.categories
-        expected = [('PAYMENTREQUEST_0_AMT', decimal.Decimal('300200.00')),
+        expected = [('PAYMENTREQUEST_0_PAYMENTACTION', 'Sale'),
+                    ('PAYMENTREQUEST_0_AMT', decimal.Decimal('300200.00')),
                     ('L_PAYMENTREQUEST_0_QTY0', 2),
                     ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', categories[0]),
@@ -72,11 +74,13 @@ class RequestEncodingTest(unittest.TestCase):
         requests = self.singleItemRequest, self.multipleItemRequest
         encoded = encodePaymentRequests(*requests)
         categories = [r.categories for r in requests]
-        expected = [('PAYMENTREQUEST_0_AMT', decimal.Decimal('100.00')),
+        expected = [('PAYMENTREQUEST_0_PAYMENTACTION', 'Sale'),
+                    ('PAYMENTREQUEST_0_AMT', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_QTY0', 1),
                     ('L_PAYMENTREQUEST_0_AMT0', decimal.Decimal('100.00')),
                     ('L_PAYMENTREQUEST_0_ITEMCATEGORY0', categories[0][0]),
                     ('L_PAYMENTREQUEST_0_NAME0', 'Cake'),
+                    ('PAYMENTREQUEST_1_PAYMENTACTION', 'Sale'),
                     ('PAYMENTREQUEST_1_AMT', decimal.Decimal('300200.00')),
                     ('L_PAYMENTREQUEST_1_QTY0', 2),
                     ('L_PAYMENTREQUEST_1_AMT0', decimal.Decimal('100.00')),

@@ -4,7 +4,8 @@ Support for encoding (serializing) Express Checkout API objects to NVP.
 import itertools
 
 
-REQUEST_KEYS = [("AMT", "totalAmount")]
+REQUEST_KEYS = [("PAYMENTACTION", "action"),
+                ("AMT", "totalAmount")]
 ITEM_KEYS = [("AMT", "amount"),
              ("ITEMCATEGORY", "category"),
              ("NAME", "name")]
