@@ -75,3 +75,8 @@ class Sandbox(object):
     def do_GetExpressCheckoutDetails(self, details):
         checkout = self._checkouts[details["TOKEN"]]
         return encode.encodeCheckout(checkout)
+
+
+    def do_DoExpressCheckoutPayment (self, details):
+        checkout = self._checkouts.pop(details["TOKEN"])
+        self._completedCheckouts[checkout.token] = checkout

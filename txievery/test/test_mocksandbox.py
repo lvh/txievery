@@ -85,3 +85,12 @@ class SandboxTest(unittest.TestCase):
         response = dict(response)
         for mandatoryKey in ("TOKEN", "ACK", "VERSION", "BUILD"):
             self.assertIn(mandatoryKey, response)
+
+
+    def test_getExpressCheckoutDetails(self):
+        details = []
+        token = dict(self.sandbox.do_SetExpressCheckout(details))["TOKEN"]
+        details = {"TOKEN": token}
+        response = dict(self.sandbox.do_GetExpressCheckoutDetails(details))
+
+        
