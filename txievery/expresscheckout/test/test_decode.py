@@ -20,8 +20,8 @@ exampleDetails = {'PAYMENTREQUEST_0_AMT': "100.00",
                   'L_PAYMENTREQUEST_1_QTY1': "3",
                   'L_PAYMENTREQUEST_1_AMT1': "100000.00",
                   'L_PAYMENTREQUEST_1_ITEMCATEGORY1': "Physical"}
-skippedRequestIndexDetails = {'PAYMENTREQUEST_5_AMT': "100.00"}
-skippedItemIndexDetails = {'L_PAYMENTREQUEST_1_AMT5': "100.00"}
+skippedRequestDetails = {'PAYMENTREQUEST_5_AMT': "100.00"}
+skippedItemDetails = {'L_PAYMENTREQUEST_0_AMT5': "100.00"}
 
 
 
@@ -66,3 +66,21 @@ class DecodeItemTest(unittest.TestCase):
         self.assertEqual(quantity, 3)
         self.assertEqual(item.amount, decimal.Decimal("100000.00"))
         self.assertEqual(item.category, "Physical")
+
+
+
+class LastElementTest(unittest.TestCase):
+    def test_skippedItem(self):
+        def skippedItem():
+            details = exampleDetails.copy()
+            details.update(skippedItemDetails)
+            return decode._decodeItemDetails(details, 0)
+        self.assertRaises(ValueError, skippedItem)
+
+
+    def test_skippedRequest(self):
+        def skippedRequest():
+            details = exampleDetails.copy()
+            details.update(skippedRequestDetails)
+            return decode._decodePaymentRequests(details)
+        self.assertRaises(ValueError, skippedRequest)

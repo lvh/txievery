@@ -7,7 +7,7 @@ import itertools
 
 from twisted.web import resource
 
-from txievery.expresscheckout import encode, decode
+from txievery.expresscheckout import api, encode, decode
 
 
 class APICallDetails(object):
@@ -50,18 +50,26 @@ class Endpoint(resource.Resource):
         return urllib.urlencode(responsePairs)
 
 
-
+       
 class Sandbox(object):
+    VERSION, BUILD = "74.0", "0"
+
     def __init__(self):
         self._checkouts = {}
         self._tokens = (str(i) for i in itertools.count())
 
 
+    def _buildResponse(self, **kw):
+        kw.update(ACK="Success", VERSION=self.VERSION, BUILD=self.BUILD)
+        return kw.iteritems()
+
+
     def do_SetExpressCheckout(self, details):
-        checkout = decode.decodeCheckout(details)
+        requests = decode._decodePaymentRequests(details)
         token = self._tokens.next()
+        checkout = api.Checkout(None, token, requests)
         self._checkouts[token] = checkout
-        return {"TOKEN": token}
+        return self._buildResponse(TOKEN=token)
 
 
     def do_GetExpressCheckoutDetails(self, details):

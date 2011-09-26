@@ -8,7 +8,6 @@ import urlparse
 
 from twisted.trial import unittest
 
-from txievery.expresscheckout import api, decode, encode
 from txievery.test import mocksandbox
 
 
@@ -83,6 +82,6 @@ class SandboxTest(unittest.TestCase):
         self.assertEqual(len(self.sandbox._checkouts), 0)
         response = self.sandbox.do_SetExpressCheckout(details)
         self.assertEqual(len(self.sandbox._checkouts), 1)
-        response = urlparse.parse_qs(response)
-        self.assertEqual(len(response), 1)
-        self.assertIn("TOKEN", response)
+        response = dict(response)
+        for mandatoryKey in ("TOKEN", "ACK", "VERSION", "BUILD"):
+            self.assertIn(mandatoryKey, response)

@@ -6,11 +6,6 @@ from functools import partial
 from txievery.expresscheckout import api
 
 
-def decodeCheckout(details):
-    paymentRequests = _decodePaymentRequests(details)
-    return api.Checkout(paymentRequests)
-
-
 baseTemplate = "PAYMENTREQUEST_{requestIndex}_{key}".format
 baseListTemplate = "L_PAYMENTREQUEST_{requestIndex}_{key}{itemIndex}".format
 
@@ -30,7 +25,7 @@ def _decodePaymentRequests(details):
         request = api.PaymentRequest(itemDetails)
         requests.append(request)
 
-    verifyTemplate = partial(baseTemplate, key="AMT")
+    verifyTemplate = lambda i: baseTemplate(key="AMT", requestIndex=i)
     _verifyLastElement(firstEmpty, verifyTemplate, idxs, details)
 
     return requests
@@ -58,7 +53,7 @@ def _decodeItemDetails(details, requestIndex):
         item, qty = _decodeItem(details, keyTemplate)
         itemDetails.append((item, qty))
 
-    verifyTemplate = partial(itemTemplate, key="AMT")
+    verifyTemplate = lambda i: itemTemplate(key="AMT", itemIndex=i)
     _verifyLastElement(firstEmpty, verifyTemplate, idxs, details)
 
     return itemDetails
@@ -88,6 +83,6 @@ def _decodeItem(details, template):
 
 def _verifyLastElement(firstEmptyIndex, template, remainingIndices, details):
     for remaining in remainingIndices:
-        if template(itemIndex=remaining) in details:
+        if template(remaining) in details:
             raise ValueError("Element at index {0} after empty index {1}"
                              .format(remaining, firstEmptyIndex))
