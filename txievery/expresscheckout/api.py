@@ -19,6 +19,17 @@ LIVE_CERTIFICATE_URI = "https://api.paypal.com/nvp"
 
 
 
+class Credentials(object):
+    """
+    Credentials for connecting to a PayPal API server.
+    """
+    def __init__(self, username, password, keyFile):
+        self.username = username
+        self.password = password
+        self.keyFile = keyFile
+
+
+
 class Client(object):
     """
     A client for dealing with Paypal's Express Checkout NVP API.
@@ -26,7 +37,7 @@ class Client(object):
     API_VERSION = "74.0"
     MAX_PAYMENT_REQUESTS = 10
     
-    def __init__(self, returnURL, cancelURL, apiURL=SANDBOX_CERTIFICATE_URI):
+    def __init__(self, credentials, returnURL, cancelURL, apiURL):
         self._defaultPairs = [("VERSION", self.API_VERSION),
                               ("RETURNURL", returnURL),
                               ("CANCELURL", cancelURL)]
