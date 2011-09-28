@@ -27,8 +27,8 @@ class NVPAgent(object):
     """
     An agent for speaking the NVP API.
     """
-    def __init__(self, apiURL, credentials):
-        self.apiURL = apiURL
+    def __init__(self, credentials):
+        self.credentials = credentials
         ctxFactory = PaypalContextFactory(credentials.keyFile)
         self._agent = client.Agent(reactor, ctxFactory)
 
@@ -36,7 +36,8 @@ class NVPAgent(object):
     def makeRequest(self, pairs):
         headers = http_headers.Headers()
         bodyProducer = NVPProducer(pairs)
-        d = self._agent.request("GET", self.apiURL, headers, bodyProducer)
+        apiURL = self.credentials.apiURL
+        d = self._agent.request("GET", apiURL, headers, bodyProducer)
         d.addCallback(urlparse.parse_qs)
         return d
 

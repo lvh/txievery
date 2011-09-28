@@ -1,7 +1,6 @@
 """
 Tests for NVP support.
 """
-import decimal
 import mock
 import StringIO
 
@@ -13,7 +12,9 @@ from txievery.expresscheckout import nvp
 class NVPAgentTest(unittest.TestCase):
     def test_agent(self):
         expectedURL = "http://apiurl"
-        agent = nvp.NVPAgent(expectedURL)
+        credentials = mock.Mock()
+        credentials.apiURL = expectedURL
+        agent = nvp.NVPAgent(credentials)
         agent._agent = mock.Mock()
 
         pairs = [("a", "b")]

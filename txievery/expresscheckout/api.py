@@ -12,11 +12,8 @@ from txievery.expresscheckout import interface, nvp
 from txievery.expresscheckout.encode import encodePaymentRequests
 
 
-SANDBOX_SIGNATURE_URI = "https://api-3t.sandbox.paypal.com/nvp"
-SANDBOX_CERTIFICATE_URI = "https://api.sandbox.paypal.com/nvp"
-
-LIVE_SIGNATURE_URI = "https://api-3t.paypal.com/nvp"
-LIVE_CERTIFICATE_URI = "https://api.paypal.com/nvp"
+SANDBOX_URL = "https://api.sandbox.paypal.com/nvp"
+LIVE_URL = "https://api.paypal.com/nvp"
 
 
 
@@ -24,10 +21,11 @@ class Credentials(object):
     """
     Credentials for connecting to a PayPal API server.
     """
-    def __init__(self, username, password, keyFile):
+    def __init__(self, username, password, keyFile, apiURL):
         self.username = username
         self.password = password
         self.keyFile = keyFile
+        self.apiURL = apiURL
 
 
     @classmethod
@@ -39,7 +37,12 @@ class Credentials(object):
         password = getVar("PASSWORD")
         keyFile = open(getVar("KEYFILE"), "r")
 
-        return cls(username, password, keyFile)
+        try:
+            apiURL = getVar("APIURL")
+        except KeyError:
+            apiURL = LIVE_URL
+
+        return cls(username, password, keyFile, apiURL)
 
 
 
@@ -47,20 +50,18 @@ class Client(object):
     """
     A client for dealing with Paypal's Express Checkout NVP API.
     """
-    API_URL = LIVE_CERTIFICATE_URI
     API_VERSION = "74.0"
     MAX_PAYMENT_REQUESTS = 10
     
     def __init__(self, credentials, returnURL, cancelURL):
-        self._defaultPairs = [("VERSION", self.API_VERSION),
-                              ("RETURNURL", returnURL),
-                              ("CANCELURL", cancelURL)]
-
-        self.agent = nvp.NVPAgent(self.API_URL)
+        self.prefixes = [("RETURNURL", returnURL), ("CANCELURL", cancelURL)]
+        self.agent = nvp.NVPAgent(credentials)
 
 
     def _makeRequest(self, method, extraPairs):
-        prefixPairs = [("METHOD", method), self._defaultPairs]
+        prefixPairs = [("METHOD", method),
+                       ("VERSION", self.API_VERSION),
+                       self.prefixes]
         pairs = itertools.chain(prefixPairs, extraPairs)
         return self.agent.makeRequest(pairs)
 

@@ -13,11 +13,12 @@ from txievery.expresscheckout import api, interface
 
 
 emptyPaymentRequest = api.PaymentRequest([])
-
+defaultCredentials = api.Credentials("lvh", "ewa", None, "http://apiurl")
 
 
 class CredentialsTest(unittest.TestCase):
     credentialVars = {"TXIEVERY_USERNAME": "lvh", "TXIEVERY_PASSWORD": "ewa"}
+    apiURLVar = {"TXIEVERY_APIURL": "https://spam"}
 
     def setUp(self):
         self.originalEnviron = os.environ
@@ -42,6 +43,11 @@ class CredentialsTest(unittest.TestCase):
         self.assertEqual(credentials.username, "lvh")
         self.assertEqual(credentials.password, "ewa")
         self.assertEqual(credentials.keyFile.name, self.keyFilePath)
+        self.assertEqual(credentials.apiURL, api.LIVE_URL)
+
+        os.environ.update(self.apiURLVar)
+        credentials = api.Credentials.fromEnvironment()
+        self.assertEqual(credentials.apiURL, "https://spam")
 
 
     def test_missingKeyFile(self):
@@ -57,7 +63,8 @@ class CredentialsTest(unittest.TestCase):
 
 class ClientTest(unittest.TestCase):
     def setUp(self):
-        self.client = api.Client("http://returnuri", "http://canceluri")
+        returnURL, cancelURL = "http://returnuri", "http://canceluri"
+        self.client = api.Client(defaultCredentials, returnURL, cancelURL)
 
         self.deferred = d = defer.Deferred()
         self.client.agent = mock.Mock()
