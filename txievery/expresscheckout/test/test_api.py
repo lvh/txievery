@@ -3,6 +3,8 @@ Tests for the Express Checkout txievery API.
 """
 import decimal
 import mock
+import os
+import tempfile
 
 from twisted.internet import defer
 from twisted.trial import unittest
@@ -11,6 +13,45 @@ from txievery.expresscheckout import api, interface
 
 
 emptyPaymentRequest = api.PaymentRequest([])
+
+
+
+class CredentialsTest(unittest.TestCase):
+    credentialVars = {"TXIEVERY_USERNAME": "lvh", "TXIEVERY_PASSWORD": "ewa"}
+
+    def setUp(self):
+        self.originalEnviron = os.environ
+        os.environ = {}
+
+        temp, self.keyFilePath = tempfile.mkstemp()
+        self.keyFileVar = {"TXIEVERY_KEYFILE": self.keyFilePath}
+        os.close(temp)
+
+
+    def tearDown(self):
+        os.environ = self.originalEnviron
+        os.unlink(self.keyFilePath)
+
+
+    def test_fromEnvironment(self):
+        os.environ.update(self.credentialVars)
+        os.environ.update(self.keyFileVar)
+
+        credentials = api.Credentials.fromEnvironment()
+
+        self.assertEqual(credentials.username, "lvh")
+        self.assertEqual(credentials.password, "ewa")
+        self.assertEqual(credentials.keyFile.name, self.keyFilePath)
+
+
+    def test_missingKeyFile(self):
+        os.environ.update(self.credentialVars)
+        self.assertRaises(KeyError, api.Credentials.fromEnvironment)
+
+
+    def test_missingCredentials(self):
+        os.environ.update(self.keyFileVar)
+        self.assertRaises(KeyError, api.Credentials.fromEnvironment)
 
 
 

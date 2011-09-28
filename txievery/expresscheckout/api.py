@@ -4,6 +4,7 @@ Direct access to PayPal's Express Checkout API.
 import decimal
 import itertools
 import operator
+import os
 
 from zope.interface import implements
 
@@ -29,20 +30,33 @@ class Credentials(object):
         self.keyFile = keyFile
 
 
+    @classmethod
+    def fromEnvironment(cls):
+        def getVar(name):
+            return os.environ["TXIEVERY_{}".format(name)]
+ 
+        username = getVar("USERNAME")
+        password = getVar("PASSWORD")
+        keyFile = open(getVar("KEYFILE"), "r")
+
+        return cls(username, password, keyFile)
+
+
 
 class Client(object):
     """
     A client for dealing with Paypal's Express Checkout NVP API.
     """
+    API_URL = LIVE_CERTIFICATE_URI
     API_VERSION = "74.0"
     MAX_PAYMENT_REQUESTS = 10
     
-    def __init__(self, credentials, returnURL, cancelURL, apiURL):
+    def __init__(self, credentials, returnURL, cancelURL):
         self._defaultPairs = [("VERSION", self.API_VERSION),
                               ("RETURNURL", returnURL),
                               ("CANCELURL", cancelURL)]
 
-        self.agent = nvp.NVPAgent(apiURL)
+        self.agent = nvp.NVPAgent(self.API_URL)
 
 
     def _makeRequest(self, method, extraPairs):
