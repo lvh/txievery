@@ -30,6 +30,26 @@ class Credentials(object):
 
     @classmethod
     def fromEnvironment(cls):
+        """
+        Builds credentials from environment variables.
+
+        This checks the following environment variables:
+
+        TXIEVERY_USERNAME
+            The username.
+        TXIEVERY_PASSWORD
+            The password.
+        TXIEVERY_KEYFILE
+            The path to the key file containing the certificate and the
+            private key.
+        TXIEVERY_APIURL
+            The URL to make API calls to.
+
+        All these environment variables except the API URL are required. If
+        unspecified, the API URL defaults to the live PayPal endpoint.
+
+        :raises: ``KeyError`` if any required environment variable is missing.
+        """
         def getVar(name):
             return os.environ["TXIEVERY_{}".format(name)]
  

@@ -10,7 +10,20 @@ from twisted.web import client, http_headers
 
 
 class PaypalContextFactory(ssl.ClientContextFactory):
+    """
+    An SSL context factory for talking to PayPal.
+    """
     def __init__(self, keyFile):
+        """
+        Initializes a PayPal context factory.
+
+        Note that PayPal calls the key file a "certificate", even though it
+        contains both a certificate and a private key.
+
+        :param keyFile: The key file.
+        :type keyFile: file-like object
+
+        """
         self.keyFile = keyFile
 
 
@@ -25,7 +38,7 @@ class PaypalContextFactory(ssl.ClientContextFactory):
 
 class NVPAgent(object):
     """
-    An agent for speaking the NVP API.
+    An agent for talking to an NVP API endpoint.
     """
     def __init__(self, credentials):
         self.credentials = credentials
